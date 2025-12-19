@@ -19,9 +19,17 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# 2. 初始化 AI 模型
-mp_face_mesh = mp.solutions.face_mesh
+# 2. 初始化 AI 模型 (修正路徑相容性)
+try:
+    import mediapipe.python.solutions.face_mesh as mp_face_mesh
+except:
+    try:
+        import mediapipe.solutions.face_mesh as mp_face_mesh
+    except:
+        st.error("AI 模組加載失敗，請檢查 requirements.txt")
+
 face_mesh = mp_face_mesh.FaceMesh(static_image_mode=True, max_num_faces=1)
+
 
 st.title("💊 AI 骨相美學診斷室")
 st.write("透過 AI 偵測面部核心數據，為您量身打造原生感妝容方案。")

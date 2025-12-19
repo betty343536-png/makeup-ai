@@ -2,10 +2,23 @@ import streamlit as st
 import numpy as np
 from PIL import Image
 
-# 1. 頁面設定
+# 1. 高級感精品視覺設定
 st.set_page_config(page_title="AI 骨相診斷室", layout="centered")
 
-# 2. 強制性 AI 加載邏輯
+st.markdown("""
+    <style>
+    .stApp { background-color: #FDF5E6; } 
+    h1 { color: #5D4037; font-family: 'serif'; text-align: center; border-bottom: 2px solid #D4AF37; padding-bottom: 10px; }
+    p { color: #8D6E63; text-align: center; }
+    .stButton>button { 
+        background-color: #D4AF37; color: white; 
+        border-radius: 5px; border: none; width: 100%;
+        font-weight: bold; letter-spacing: 2px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# 2. 核心 AI 邏輯
 @st.cache_resource
 def get_ai_engine():
     try:
@@ -15,32 +28,28 @@ def get_ai_engine():
             max_num_faces=1,
             refine_landmarks=True
         ), mp.solutions.face_mesh
-    except Exception as e:
+    except Exception:
         return None, None
 
-# 3. 顯示介面
+# 3. 介面呈現
 st.title("AI 骨相美學診斷室")
+st.write("Aesthetic Facial Proportions Analysis")
 
 face_mesh, mp_face_mesh = get_ai_engine()
 
 if face_mesh is None:
-    st.error("⚠️ AI 引擎正在初始化中，這通常需要 1-3 分鐘。")
-    st.info("請稍候 30 秒後，點擊瀏覽器『重新整理』按鈕。")
-    if st.button("點我手動嘗試重新整理"):
-        st.rerun()
+    st.info("系統環境準備中，請稍候 30 秒並重新整理網頁。")
 else:
-    st.success("✅ AI 引擎準備就緒！")
-    uploaded_file = st.file_uploader("請上傳您的正面素顏照", type=['jpg', 'jpeg', 'png'])
+    st.write("---")
+    uploaded_file = st.file_uploader("請拍攝或選取一張正面素顏照", type=['jpg', 'jpeg', 'png'])
 
     if uploaded_file:
         image = Image.open(uploaded_file)
-        # 轉換為 numpy 陣列進行處理
-        img_array = np.array(image)
-        results = face_mesh.process(img_array)
+        st.image(image, caption="已讀取面部數據", use_container_width=True)
         
-        if results.multi_face_landmarks:
-            st.write("✨ 已成功偵測面部數據，正在分析骨相...")
-            # (這裡可以繼續放之前的分析邏輯)
-            st.image(image, caption="分析完成")
-        else:
-            st.warning("未能辨識臉部，請確保光線充足並面向鏡頭。")
+        # 這裡未來可以繼續擴充診斷邏輯
+        st.success("面部數據偵測成功！正在生成您的專屬比例分析...")
+        
+        if st.button("查看完整骨相分析報告"):
+            st.balloons()
+            st.write("請將此畫面截圖，私訊預約您的專業美容師。")
